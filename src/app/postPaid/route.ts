@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     const { text } = await request.json();
 
-    if (!text || typeof text !== "string") {
+    if (!text) {
       return NextResponse.json(
         { error: "Text is required and must be a string" },
         { status: 400 }
