@@ -1,24 +1,79 @@
-import { type NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
+import {
+  collection,
+  doc,
+  addDoc,
+  getDoc,
+  setDoc,
+  updateDoc,
+  Timestamp,
+} from "firebase/firestore";
+import { ExpenseSchema } from "../../../schemas/ExpenseSchema";
+import { db } from "../../../lib/firebase";
 
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const { text } = await request.json();
+    const body = await req.json();
+    const parsed = ExpenseSchema.safeParse(body);
 
-    if (!text) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Text is required and must be a string" },
+        {
+          error: "Datos inválidos",
+          issues: parsed.error.errors,
+        },
         { status: 400 }
       );
     }
 
-    console.log("Received text:", text);
+    const { phone, amount, category, description, date } = parsed.data;
+
+    // Referencia al documento del usuario
+    const userDocRef = doc(db, "users", phone);
+    const userSnapshot = await getDoc(userDocRef);
+
+    let currentBalance = 0;
+
+    if (!userSnapshot.exists()) {
+      // Si no existe, crearlo con valores por defecto
+      await setDoc(userDocRef, {
+        income: 0,
+        currentBalance: 0,
+        lastPayday: Timestamp.now(),
+      });
+    } else {
+      const userData = userSnapshot.data();
+      currentBalance = userData.currentBalance ?? 0;
+    }
+
+    // 1. Agregar gasto
+    const expenseRef = collection(userDocRef, "expenses");
+    const newExpense = await addDoc(expenseRef, {
+      amount,
+      category,
+      description: description || "",
+      date: Timestamp.fromDate(date),
+    });
+
+    // 2. Actualizar balance
+    await updateDoc(userDocRef, {
+      currentBalance: currentBalance - amount,
+    });
 
     return NextResponse.json(
-      { message: "Text received successfully", text },
+      {
+        message: "Gasto guardado correctamente",
+        expenseId: newExpense.id,
+        newBalance: currentBalance - amount,
+        userCreated: !userSnapshot.exists(),
+      },
       { status: 201 }
     );
-  } catch (error) {
-    console.error("Error processing text:", error);
-    return NextResponse.json({ error: "Invalid JSON data" }, { status: 400 });
+  } catch (err) {
+    console.error("Error al guardar el gasto:", err);
+    return NextResponse.json(
+      { error: "Error interno del servidor" },
+      { status: 500 }
+    );
   }
 }
