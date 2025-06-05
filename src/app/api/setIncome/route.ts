@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { doc, getDoc, setDoc, updateDoc, Timestamp } from "firebase/firestore";
-import { IncomeSchema } from "../../../schemas/IncomeSchema";
-import { db } from "../../../lib/firebase";
-
+import { IncomeSchema } from "../../../../schemas/IncomeSchema";
+import { db } from "@/lib/firebase";
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();

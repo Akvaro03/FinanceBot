@@ -6,7 +6,10 @@ export const ExpenseSchema = z.object({
   amount: z.number().positive(),
   category: z.string().min(1),
   description: z.string().optional(),
-  date: z.string().transform((val) => new Date(val)), // ISO date desde el frontend
+  date: z
+    .string()
+    .transform((val) => new Date(val))
+    .optional(), // ISO date desde el frontend
 });
 
 export type ExpenseType = z.infer<typeof ExpenseSchema>;

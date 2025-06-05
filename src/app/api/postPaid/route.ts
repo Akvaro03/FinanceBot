@@ -8,8 +8,8 @@ import {
   updateDoc,
   Timestamp,
 } from "firebase/firestore";
-import { ExpenseSchema } from "../../../schemas/ExpenseSchema";
-import { db } from "../../../lib/firebase";
+import { db } from "@/lib/firebase";
+import { ExpenseSchema } from "../../../../schemas/ExpenseSchema";
 
 export async function POST(req: NextRequest) {
   try {
@@ -27,6 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     const { phone, amount, category, description, date } = parsed.data;
+    const expenseDate = date ?? new Date(); // <- usa la fecha actual si no se mandó
 
     // Referencia al documento del usuario
     const userDocRef = doc(db, "users", phone);
@@ -52,7 +53,7 @@ export async function POST(req: NextRequest) {
       amount,
       category,
       description: description || "",
-      date: Timestamp.fromDate(date),
+      date: Timestamp.fromDate(expenseDate),
     });
 
     // 2. Actualizar balance
