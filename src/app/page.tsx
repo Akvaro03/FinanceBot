@@ -53,7 +53,7 @@ export default function Page() {
     }
 
     try {
-      const res = await fetch(`http://localhost:3000/api/${body.action}`, {
+      const res = await fetch(`/api/${body.action}`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body),
