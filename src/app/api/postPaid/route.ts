@@ -73,7 +73,10 @@ export async function POST(req: NextRequest) {
   } catch (err) {
     console.error("Error al guardar el gasto:", err);
     return NextResponse.json(
-      { error: "Error interno del servidor" },
+      {
+        error: "Error interno del servidor",
+        message: String(err),
+      },
       { status: 500 }
     );
   }

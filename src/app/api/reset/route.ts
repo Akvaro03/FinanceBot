@@ -49,9 +49,12 @@ export async function POST(req: NextRequest) {
       { status: 200 }
     );
   } catch (err) {
-    console.error("Error en /reset:", err);
+    console.error("Error al guardar el gasto:", err);
     return NextResponse.json(
-      { error: "Error interno del servidor" },
+      {
+        error: "Error interno del servidor",
+        message: String(err),
+      },
       { status: 500 }
     );
   }
