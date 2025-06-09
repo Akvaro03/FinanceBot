@@ -1,4 +1,11 @@
-export type OptionType = "balance" | "payday" | "postPaid" | "setIncome" | "reset";
+export type OptionType =
+  | "balance"
+  | "payday"
+  | "postPaid"
+  | "setIncome"
+  | "reset"
+  | "history"
+  | "";
 export type ResponseBalanceType = {
   currentBalance: number;
   income: number;
